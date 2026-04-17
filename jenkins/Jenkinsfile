@@ -1,0 +1,90 @@
+groovy
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_REPO = 'YOUR_DOCKERHUB_USERNAME/eventpulse'  // ← Change this
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        IMAGE_TAG = "${BUILD_NUMBER}"   // Jenkins build number as tag
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+                echo "Building branch: ${env.BRANCH_NAME}, build: ${env.BUILD_NUMBER}"
+            }
+        }
+
+        stage('Install & Test') {
+            steps {
+                dir('app') {
+                    sh 'npm ci'
+                    sh 'npm test'
+                }
+            }
+            post {
+                always {
+                    junit 'app/coverage/junit.xml'   // Publish test results
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('app') {
+                    sh "docker build -t ${DOCKERHUB_REPO}:${IMAGE_TAG} ."
+                    sh "docker tag ${DOCKERHUB_REPO}:${IMAGE_TAG} ${DOCKERHUB_REPO}:latest"
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                sh """
+                    echo ${DOCKERHUB_CREDENTIALS_PSW} | \
+                    docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
+                    docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}
+                    docker push ${DOCKERHUB_REPO}:latest
+                """
+            }
+        }
+
+        stage('Update Helm Values') {
+            steps {
+                // Update the image tag in values.yaml so ArgoCD picks it up
+                sh """
+                    sed -i 's|tag: .*|tag: "${IMAGE_TAG}"|' helm/eventpulse/values.yaml
+                    cat helm/eventpulse/values.yaml   # Verify the change
+                """
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-credentials',
+                    usernameVariable: 'GIT_USER',
+                    passwordVariable: 'GIT_TOKEN'
+                )]) {
+                    sh """
+                        git config user.email "jenkins@eventpulse.local"
+                        git config user.name "Jenkins CI"
+                        git add helm/eventpulse/values.yaml
+                        git commit -m "CI: Update image tag to ${IMAGE_TAG} [skip ci]"
+                        git push https://${GIT_USER}:${GIT_TOKEN}@github.com/YOUR_GITHUB_USERNAME/eventpulse.git HEAD:main
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Build ${BUILD_NUMBER} succeeded! ArgoCD will sync shortly."
+        }
+        failure {
+            echo "❌ Build ${BUILD_NUMBER} failed. Check the logs above."
+        }
+        always {
+            sh 'docker logout'
+            cleanWs()
+        }
+    }
+}
