@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-eventpulse
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: {{ .Release.Name }}-eventpulse
+  ports:
+    - protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
