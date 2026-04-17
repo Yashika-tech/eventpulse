@@ -1,13 +1,10 @@
-**`app/src/index.js`**
-```javascript
 const express = require('express');
 const app = express();
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
-const events = []; // In-memory store
+const events = [];
 
-// POST /events — publish an event
 app.post('/events', (req, res) => {
   const { type, payload } = req.body;
 
@@ -29,19 +26,18 @@ app.post('/events', (req, res) => {
   res.status(201).json({ message: 'Event accepted', event });
 });
 
-// GET /events — list all events
 app.get('/events', (req, res) => {
   res.json({ count: events.length, events });
 });
 
-// GET /health — health check for K8s
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', uptime: process.uptime() });
 });
 
-app.listen(PORT, () => {
-  console.log(`EventPulse running on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`EventPulse running on port ${PORT}`);
+  });
+}
 
 module.exports = app;
-```

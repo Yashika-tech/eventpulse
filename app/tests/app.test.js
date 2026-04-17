@@ -1,4 +1,3 @@
-```javascript
 const request = require('supertest');
 const app = require('../src/index');
 
@@ -29,4 +28,3 @@ describe('EventPulse API', () => {
     expect(Array.isArray(res.body.events)).toBe(true);
   });
 });
-```
