@@ -1,5 +1,4 @@
-**`app/Dockerfile`**
-```dockerfile
+
 # Stage 1: Build & Test
 FROM node:18-alpine AS builder
 WORKDIR /app
