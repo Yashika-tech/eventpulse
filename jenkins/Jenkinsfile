@@ -1,9 +1,8 @@
-groovy
 pipeline {
     agent any
 
     environment {
-        DOCKERHUB_REPO = 'YOUR_DOCKERHUB_USERNAME/eventpulse'  // ← Change this
+        DOCKERHUB_REPO = 'yashikapaul/eventpulse'
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
         IMAGE_TAG = "${BUILD_NUMBER}"   // Jenkins build number as tag
     }
@@ -68,7 +67,7 @@ pipeline {
                         git config user.name "Jenkins CI"
                         git add helm/eventpulse/values.yaml
                         git commit -m "CI: Update image tag to ${IMAGE_TAG} [skip ci]"
-                        git push https://${GIT_USER}:${GIT_TOKEN}@github.com/YOUR_GITHUB_USERNAME/eventpulse.git HEAD:main
+                        git push https://${GIT_USER}:${GIT_TOKEN}@github.com/Yashika-tech/eventpulse.git HEAD:main
                     """
                 }
             }
