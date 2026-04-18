@@ -31,7 +31,7 @@ app.get('/events', (req, res) => {
 });
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', uptime: process.uptime() });
+  res.json({ status: 'broken', uptime: process.uptime() });
 });
 
 app.delete('/events', (req, res) => {
