@@ -3,7 +3,7 @@ replicaCount: 4
 image:
   repository: yashikapaul/eventpulse  # ← Change this
   pullPolicy: IfNotPresent
-  tag: "78"
+  tag: "79"
 
 service:
   type: ClusterIP
