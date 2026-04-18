@@ -53,6 +53,11 @@ app.get('/stats', (req, res) => {
   res.json({ total: events.length, byType: types });
 });
 
+app.get('/events/latest', (req, res) => {
+  if (events.length === 0) return res.status(404).json({ error: 'No events yet' });
+  res.json({ event: events[events.length - 1] });
+});
+
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`EventPulse running on port ${PORT}`);
