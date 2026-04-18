@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+        nodejs 'NodeJS-20'
+    }
 
     environment {
         DOCKERHUB_REPO = 'yashikapaul/eventpulse'
@@ -13,17 +16,6 @@ pipeline {
             steps {
                 checkout scm
                 echo "Building branch: ${env.BRANCH_NAME}, build: ${env.BUILD_NUMBER}"
-            }
-        }
-
-        stage('Install Node.js') {
-            steps {
-                sh '''
-                    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-                    apt-get install -y nodejs
-                    node --version
-                    npm --version
-                '''
             }
         }
 
