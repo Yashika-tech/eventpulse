@@ -34,6 +34,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'healthy', uptime: process.uptime() });
 });
 
+app.delete('/events', (req, res) => {
+  events.length = 0;
+  res.json({ message: 'All events cleared' });
+});
+
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`EventPulse running on port ${PORT}`);
