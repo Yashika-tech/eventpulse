@@ -58,6 +58,10 @@ app.get('/events/latest', (req, res) => {
   res.json({ event: events[events.length - 1] });
 });
 
+app.get('/ping', (req, res) => {
+  res.json({ message: 'pong', timestamp: new Date().toISOString() });
+});
+
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`EventPulse running on port ${PORT}`);
