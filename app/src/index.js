@@ -39,6 +39,12 @@ app.delete('/events', (req, res) => {
   res.json({ message: 'All events cleared' });
 });
 
+app.get('/events/:id', (req, res) => {
+  const event = events.find(e => e.id === req.params.id);
+  if (!event) return res.status(404).json({ error: 'Event not found' });
+  res.json({ event });
+});
+
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`EventPulse running on port ${PORT}`);
