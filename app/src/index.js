@@ -45,6 +45,14 @@ app.get('/events/:id', (req, res) => {
   res.json({ event });
 });
 
+app.get('/stats', (req, res) => {
+  const types = events.reduce((acc, e) => {
+    acc[e.type] = (acc[e.type] || 0) + 1;
+    return acc;
+  }, {});
+  res.json({ total: events.length, byType: types });
+});
+
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`EventPulse running on port ${PORT}`);
